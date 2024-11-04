@@ -18,6 +18,10 @@ function log(userIndex, message) {
     console.log(`[${getCurrentTime()}] [User ${userIndex + 1}] ${message}`);
 }
 
+function sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
+
 // 从文件中读取代理信息并解析
 function loadProxies(filePath) {
     const proxies = [];
@@ -48,11 +52,13 @@ async function launch(userIndex, userDataDir, proxy, userCredentials) {
     const extensionPath = path.resolve('extension');
     const pemPath = path.resolve('1.0.13_0.pem');
     const proxyUrl = `http://${proxy.ip}:${proxy.port}`;
+    // 动态调试端口，根据 userIndex 生成不同的端口号
+    const debuggingPort = 11500 + userIndex;
 
-    log(userIndex, `Launching browser with user data directory: ${userDataDir} and proxy: ${proxyUrl}`);
+    log(userIndex, `Launching browser with user data directory: ${userDataDir}, proxy: ${proxyUrl}, and debugging port: ${debuggingPort}`);
     const browser = await puppeteer.launch({
         //executablePath: '/usr/bin/google-chrome-stable',
-        headless: true,
+        headless: false,
         ignoreHTTPSErrors: true,
         userDataDir: userDataDir,
         args: [
@@ -61,18 +67,23 @@ async function launch(userIndex, userDataDir, proxy, userCredentials) {
             `--load-extension=${extensionPath}`,
             `--ignore-certificate-errors=${pemPath}`,
             `--proxy-server=${proxyUrl}`,
+            `--remote-debugging-port=${debuggingPort}`,  // 根据 userIndex 设置的调试端口
         ],
     });
     log(userIndex, `Browser launched successfully with user data directory: ${userDataDir}`);
 
     try {
+        await sleep(5000)
 
         const pages = await browser.pages();
-        if (pages.length > 0) {
-            await pages[0].close();  // 关闭默认空白页
-            log(userIndex, "Closed initial page.");
+        // 遍历所有页面并关闭包含 "gradient" 的页面
+        for (const page of pages) {
+            const url = await page.url(); // 获取页面的 URL
+            if (url.includes("gradient")) {
+                await page.close();
+                log(userIndex, `Closed page with URL containing "gradient": ${url}`);
+            }
         }
-
 
         log(userIndex, `Creating new page for user data directory: ${userDataDir}`);
         const page = await browser.newPage();

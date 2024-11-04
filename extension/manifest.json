@@ -7,9 +7,8 @@
       "service_worker": "background.bundle.js"
    },
    "description": "Get a sentry node and join the future of ubiquitous compute.",
-   "differential_fingerprint": "1.a97b8f62b116c1dfecc5c43a4f756197ff4d08fcd1c96d24c6566a36deda0a58",
    "externally_connectable": {
-      "matches": [ "https://app.gradient.network/*", "https://app.mistylabs.net/*", "https://app.mistylabs-internal.tech/*" ]
+      "matches": [ "https://app.gradient.network/*" ]
    },
    "icons": {
       "128": "icons/icon-128.png",
@@ -21,5 +20,5 @@
    "name": "Gradient Sentry Node",
    "permissions": [ "storage", "offscreen" ],
    "update_url": "https://clients2.google.com/service/update2/crx",
-   "version": "1.0.13"
+   "version": "1.0.14"
 }
