@@ -52,7 +52,7 @@ async function launch(userIndex, userDataDir, proxy, userCredentials) {
     log(userIndex, `Launching browser with user data directory: ${userDataDir} and proxy: ${proxyUrl}`);
     const browser = await puppeteer.launch({
         //executablePath: '/usr/bin/google-chrome-stable',
-        headless: false,
+        headless: true,
         ignoreHTTPSErrors: true,
         userDataDir: userDataDir,
         args: [
