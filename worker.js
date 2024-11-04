@@ -3,17 +3,18 @@ const path = require('path');
 const randomUseragent = require('random-useragent');
 const puppeteer = require('puppeteer-extra');
 const StealthPlugin = require('puppeteer-extra-plugin-stealth');
-const readline = require('readline');
 
 puppeteer.use(StealthPlugin());
 
-// 格式化当前时间的函数
+// 获取传入的用户编号
+const userNumber = parseInt(process.argv[2] || process.env.USER_NUMBER);
+
+// 其他函数保持不变
 function getCurrentTime() {
     const now = new Date();
-    return now.toISOString().replace('T', ' ').split('.')[0]; // 形如 "YYYY-MM-DD HH:MM:SS"
+    return now.toISOString().replace('T', ' ').split('.')[0];
 }
 
-// 日志打印函数，包含时间戳和用户编号
 function log(userIndex, message) {
     console.log(`[${getCurrentTime()}] [User ${userIndex + 1}] ${message}`);
 }
@@ -58,7 +59,7 @@ async function launch(userIndex, userDataDir, proxy, userCredentials) {
     log(userIndex, `Launching browser with user data directory: ${userDataDir}, proxy: ${proxyUrl}, and debugging port: ${debuggingPort}`);
     const browser = await puppeteer.launch({
         //executablePath: '/usr/bin/google-chrome-stable',
-        headless: false,
+        headless: true,
         ignoreHTTPSErrors: true,
         userDataDir: userDataDir,
         args: [
@@ -135,81 +136,41 @@ async function launch(userIndex, userDataDir, proxy, userCredentials) {
     }
 }
 
-async function run(userNumbers, proxies, credentials) {
-    const baseUserDataDir = path.resolve('USERDATA');
-
-    // 检查代理和凭据数量是否足够
-    if (userNumbers.length > proxies.length || userNumbers.length > credentials.length) {
-        console.log("代理或凭据数量不足，请添加更多代理或用户信息！");
-        return;
-    }
-
-    for (const userNumber of userNumbers) {
+// 主运行函数
+async function run() {
+    try {
         const userIndex = userNumber - 1;
-        if (userIndex >= proxies.length || userIndex >= credentials.length) {
-            log(userIndex, `用户 ${userNumber} 超出可用代理或凭据的范围，请添加更多。`);
-            return;
+        const baseUserDataDir = path.resolve('USERDATA');
+        const userDataDir = path.join(baseUserDataDir, userNumber.toString().padStart(4, '0'));
+        
+        // 确保用户数据目录存在
+        fs.mkdirSync(userDataDir, { recursive: true });
+
+        // 读取代理和凭据
+        const proxies = loadProxies('proxies.txt');
+        const credentials = loadCredentials('credentials.txt');
+
+        if (!proxies[userIndex] || !credentials[userIndex]) {
+            throw new Error('代理或凭据不足');
         }
 
-        const userDataDir = path.join(baseUserDataDir, userNumber.toString().padStart(4, '0'));
-        fs.mkdirSync(userDataDir, { recursive: true });
-        
-        // 使用对应的代理
-        const proxy = proxies[userIndex];
-        log(userIndex, `Using proxy: ${proxy.ip}:${proxy.port}`);
-        
-        // 读取对应的用户名和密码
-        const userCredentials = credentials[userIndex];
-        log(userIndex, `Credentials: ${userCredentials.username}:${userCredentials.password}`);
-        
-        // 启动浏览器
-        await launch(userIndex, userDataDir, proxy, userCredentials);
+        await launch(userIndex, userDataDir, proxies[userIndex], credentials[userIndex]);
+    } catch (error) {
+        console.error(`Worker ${userNumber} error:`, error);
+        process.exit(1);
     }
 }
 
-// 读取用户输入
-const rl = readline.createInterface({
-    input: process.stdin,
-    output: process.stdout
+// 启动工作进程
+run();
+
+// 错误处理
+process.on('uncaughtException', (err) => {
+    console.error(`Worker ${userNumber} uncaught exception:`, err);
+    process.exit(1);
 });
 
-rl.question('请输入要运行的用户编号（例如：2 或者范围 1-5）：', (input) => {
-    const userNumbers = [];
-    const parts = input.split(' ');
-
-    parts.forEach(part => {
-        if (part.includes('-')) {
-            const range = part.split('-').map(Number);
-            if (range.length === 2 && range[0] <= range[1]) {
-                for (let i = range[0]; i <= range[1]; i++) {
-                    userNumbers.push(i);
-                }
-            }
-        } else {
-            userNumbers.push(Number(part));
-        }
-    });
-
-    // 去重并排序
-    const uniqueUserNumbers = [...new Set(userNumbers)].sort((a, b) => a - b);
-
-    if (uniqueUserNumbers.length === 0) {
-        console.log("没有有效的用户编号，请重新运行脚本并输入有效的编号。");
-    } else {
-        // 读取代理文件并解析
-        const proxies = loadProxies('proxies.txt');
-        if (proxies.length === 0) {
-            console.log("没有可用的代理，请检查 proxies.txt 文件是否有内容。");
-        } else {
-            // 读取用户名和密码
-            const credentials = loadCredentials('credentials.txt');
-            if (credentials.length === 0) {
-                console.log("没有可用的凭据，请检查 credentials.txt 文件是否有内容。");
-            } else {
-                run(uniqueUserNumbers, proxies, credentials);
-            }
-        }
-    }
-
-    rl.close();
+process.on('unhandledRejection', (reason, promise) => {
+    console.error(`Worker ${userNumber} unhandled rejection:`, reason);
+    process.exit(1);
 });
