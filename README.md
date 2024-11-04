@@ -40,12 +40,16 @@
 1. **运行程序**
 
    ```bash
-   node gradient.js
+   node start-multiple.js 1 20
    ```
-
-2. **输入用户编号**
-
-   根据提示输入要运行的用户编号或编号范围（例如：`2` 或 `1-5`）。
+   **pm2其他命令**
+   ```bash
+   pm2 list
+   pm2 logs gradient-worker-1
+   pm2 logs gradient-worker-2
+   pm2 stop all
+   pm2 delete all
+   ```
 
 ## 注意事项
 

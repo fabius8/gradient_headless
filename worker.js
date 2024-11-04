@@ -134,8 +134,8 @@ async function launch(userIndex, userDataDir, proxy, userCredentials) {
         log(userIndex, `Error: ${e.message}`);
     }
 
+    await sleep(5000)
     const pages = await browser.pages();
-
     // 遍历所有页面并关闭包含 "gradient" 的页面
     for (const page of pages) {
         const url = await page.url(); // 获取页面的 URL
