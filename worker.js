@@ -69,9 +69,9 @@ async function launch(userIndex, userDataDir, proxy, userCredentials) {
             `--ignore-certificate-errors=${pemPath}`,
             `--proxy-server=${proxyUrl}`,
             `--remote-debugging-port=${debuggingPort}`,  // 根据 userIndex 设置的调试端口
-            '--disable-gpu',  // 禁用GPU加速
-            '--disable-dev-shm-usage', // 禁用/dev/shm使用
-            '--disable-setuid-sandbox',
+            //'--disable-gpu',  // 禁用GPU加速
+            //'--disable-dev-shm-usage', // 禁用/dev/shm使用
+            //'--disable-setuid-sandbox',
             '--no-first-run',
             '--no-zygote',
             `--js-flags=--max-old-space-size=512`, // 限制JavaScript堆内存
@@ -79,11 +79,11 @@ async function launch(userIndex, userDataDir, proxy, userCredentials) {
     });
     log(userIndex, `Browser launched successfully with user data directory: ${userDataDir}`);
 
+    // 遍历所有页面并关闭包含 "gradient" 的页面
     try {
         await sleep(5000)
 
         const pages = await browser.pages();
-        // 遍历所有页面并关闭包含 "gradient" 的页面
         for (const page of pages) {
             const url = await page.url(); // 获取页面的 URL
             if (url.includes("gradient")) {
@@ -91,7 +91,7 @@ async function launch(userIndex, userDataDir, proxy, userCredentials) {
                 log(userIndex, `Closed page with URL containing "gradient": ${url}`);
             }
         }
-
+        
         log(userIndex, `Creating new page for user data directory: ${userDataDir}`);
         const page = await browser.newPage();
         log(userIndex, `Page created successfully for user data directory: ${userDataDir}`);
@@ -130,9 +130,19 @@ async function launch(userIndex, userDataDir, proxy, userCredentials) {
         } else {
             log(userIndex, "Email input not found, skipping password input.");
         }
-
     } catch (e) {
         log(userIndex, `Error: ${e.message}`);
+    }
+
+    const pages = await browser.pages();
+
+    // 遍历所有页面并关闭包含 "gradient" 的页面
+    for (const page of pages) {
+        const url = await page.url(); // 获取页面的 URL
+        if (url.includes("gradient")) {
+            await page.close();
+            log(userIndex, `Closed page with URL containing "gradient": ${url}`);
+        }
     }
 }
 

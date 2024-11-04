@@ -6,7 +6,55 @@ const rl = readline.createInterface({
     output: process.stdout
 });
 
-rl.question('请输入要运行的用户编号（例如：2 或者范围 1-5）：', (input) => {
+function sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+async function startProcesses(uniqueUserNumbers) {
+    return new Promise((resolve, reject) => {
+        pm2.connect(async function(err) {
+            if (err) {
+                console.error(err);
+                reject(err);
+                return;
+            }
+
+            for (const userNumber of uniqueUserNumbers) {
+                await new Promise((resolveStart) => {
+                    pm2.start({
+                        script: 'worker.js',
+                        name: `gradient-worker-${userNumber}`,
+                        args: [userNumber.toString()],
+                        max_memory_restart: '500M',
+                        env: {
+                            USER_NUMBER: userNumber
+                        }
+                    }, (err, apps) => {
+                        if (err) {
+                            console.error(`启动进程 ${userNumber} 失败:`, err);
+                        } else {
+                            console.log(`进程 ${userNumber} 启动成功`);
+                        }
+                        resolveStart();
+                    });
+                });
+
+                await sleep(10000); // 等待10秒
+            }
+
+            // 监控所有进程
+            pm2.launchBus((err, bus) => {
+                bus.on('process:event', function(data) {
+                    console.log('[PM2] Process Event:', data);
+                });
+            });
+
+            resolve();
+        });
+    });
+}
+
+rl.question('请输入要运行的用户编号（例如：2 或者范围 1-5）：', async (input) => {
     const userNumbers = [];
     const parts = input.split(' ');
 
@@ -32,40 +80,14 @@ rl.question('请输入要运行的用户编号（例如：2 或者范围 1-5）�
         return;
     }
 
-    // 使用 PM2 启动进程
-    pm2.connect(function(err) {
-        if (err) {
-            console.error(err);
-            process.exit(2);
-        }
-
-        uniqueUserNumbers.forEach((userNumber) => {
-            pm2.start({
-                script: 'worker.js',
-                name: `gradient-worker-${userNumber}`,
-                args: [userNumber.toString()],
-                max_memory_restart: '500M',
-                env: {
-                    USER_NUMBER: userNumber
-                }
-            }, (err, apps) => {
-                if (err) {
-                    console.error(`启动进程 ${userNumber} 失败:`, err);
-                } else {
-                    console.log(`进程 ${userNumber} 启动成功`);
-                }
-            });
-        });
-
-        // 监控所有进程
-        pm2.launchBus((err, bus) => {
-            bus.on('process:event', function(data) {
-                console.log('[PM2] Process Event:', data);
-            });
-        });
-    });
-
-    rl.close();
+    try {
+        await startProcesses(uniqueUserNumbers);
+        console.log("所有进程已启动完成");
+    } catch (error) {
+        console.error("启动进程时发生错误:", error);
+    } finally {
+        rl.close();
+    }
 });
 
 // 优雅退出
