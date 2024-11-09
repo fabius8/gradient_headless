@@ -41,7 +41,7 @@ async function monitorExtension(port) {
     let browser = await connectBrowser(port);
     let loadingAnimation = null;
     let page = null;
-    
+
     if (!browser) {
         return false;
     }
@@ -56,14 +56,16 @@ async function monitorExtension(port) {
             const url = response.url();
             if (url.includes('api.gradient.network/api/sentrynode/get/')) {
                 try {
-                    const responseData = await response.json();
+                    const textResponse = await response.text();  // 使用 text() 获取原始文本
+                    console.log('Response Text:', textResponse); // 打印原始响应
+                    const responseData = JSON.parse(textResponse);  // 解析 JSON
                     if (!responseData || !responseData.data) return;
-
+        
                     if (loadingAnimation) {
                         clearInterval(loadingAnimation);
                         process.stdout.write('\r');
                     }
-                    
+        
                     const { active, ip } = responseData.data;
                     console.log('\n状态检查结果:');
                     console.log(`IP地址: ${ip}`);
@@ -72,10 +74,9 @@ async function monitorExtension(port) {
                     if (!active) {
                         console.log('\n警告: 节点状态为非活动状态!');
                     }
-
+        
                     responseHandled = true;
-                    // 获取到信息后立即退出
-                    process.exit(0);
+                    process.exit(0);  // 获取到响应后退出
                 } catch (error) {
                     if (!(error instanceof Error) || !error.message.includes('Could not load body for this request')) {
                         console.error('Error parsing response:', error);
@@ -84,32 +85,27 @@ async function monitorExtension(port) {
             }
         });
 
-        // 减少等待时间到30秒
         await page.goto('chrome-extension://caacbgbklghmpodbdafajbgdnegacfmo/popup.html', {
             waitUntil: 'networkidle0',
             timeout: 30000
         });
 
-        // 如果30秒内没有获取到响应，则超时
+        // 等待响应或超时
         await new Promise((_, reject) => setTimeout(() => reject(new Error('Response timeout')), 30000));
 
         return true;
     } catch (error) {
-        if (error.message !== 'Response timeout') {
-            console.error('\nError during monitoring:', error);
-        } else {
-            console.log('\n未能在指定时间内获取节点状态。');
-        }
+        console.error('\nError during monitoring:', error);
         return false;
     } finally {
         if (loadingAnimation) {
             clearInterval(loadingAnimation);
         }
         if (page) {
-            await page.close().catch(() => {});
+            await page.close();
         }
         if (browser) {
-            await browser.disconnect().catch(() => {});
+            await browser.disconnect();
         }
     }
 }
