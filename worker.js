@@ -51,7 +51,7 @@ function loadCredentials(filePath) {
 
 async function launch(userIndex, userDataDir, proxy, userCredentials) {
     const extensionPath = path.resolve('extension');
-    const pemPath = path.resolve('1.0.13_0.pem');
+    const pemPath = path.resolve('1.0.14_0.pem');
     const proxyUrl = `http://${proxy.ip}:${proxy.port}`;
     // 动态调试端口，根据 userIndex 生成不同的端口号
     const debuggingPort = 11500 + userIndex;
@@ -134,7 +134,7 @@ async function launch(userIndex, userDataDir, proxy, userCredentials) {
         log(userIndex, `Error: ${e.message}`);
     }
 
-    await sleep(5000)
+    await sleep(10000)
     const pages = await browser.pages();
     // 遍历所有页面并关闭包含 "gradient" 的页面
     for (const page of pages) {

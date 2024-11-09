@@ -1,3 +1,5 @@
 node_modules/
 USERDATA
 package-lock.json
+credentials.txt
+iplist
