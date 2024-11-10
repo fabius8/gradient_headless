@@ -3,3 +3,4 @@ USERDATA
 package-lock.json
 credentials.txt
 iplist
+proxies.txt
