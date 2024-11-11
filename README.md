@@ -28,6 +28,7 @@
 
    ```bash
    npm install
+   npm install -g pm2
    ```
 
 3. **准备代理和凭证文件**
