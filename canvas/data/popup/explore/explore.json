@@ -1,0 +1,22 @@
+[
+  {"id": "block-site", "title": "Block Site"},
+  {"id": "smart-https", "title": "Smart HTTPS"},
+  {"id": "rule-blocker", "title": "Rule AdBlocker"},
+  {"id": "webapi-blocker", "title": "WebAPI Blocker"},
+  {"id": "noscript-lite", "title": "No-Script Suite Lite"},
+  {"id": "hide-tabs", "title": "Hide Tabs (Panic Button)"},
+  {"id": "block-image-video", "title": "Block Image|Video"},
+  {"id": "font-defender", "title": "Font Fingerprint Defender"},
+  {"id": "block-miners", "title": "NoMiner - Block Coin Miners"},
+  {"id": "webgl-defender", "title": "WebGL Fingerprint Defender"},
+  {"id": "html-content-blocker", "title": "HTML Content Blocker"},
+  {"id": "javascript-switch", "title": "JavaScript Switch ON|OFF"},
+  {"id": "notrack", "title": "NoTrack - Block Redirection Tracking"},
+  {"id": "change-timezone", "title": "Change Timezone (Time Shift)"},
+  {"id": "file-encryptor", "title": "File Guard (Encryptor | Decryptor)"},
+  {"id": "modify-header-value", "title": "Modify Header Value (HTTP Headers)"},
+  {"id": "change-geolocation", "title": "Change Geolocation (location Guard)"},
+  {"id": "audiocontext-defender", "title": "AudioContext Fingerprint Defender"},
+  {"id": "content-security-policy", "title": "Allow CSP: Content-Security-Policy"},
+  {"id": "access-control-allow-origin", "title": "Allow CORS: Access-Control-Allow-Origin"}
+]

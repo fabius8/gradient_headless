@@ -50,7 +50,11 @@ function loadCredentials(filePath) {
 }
 
 async function launch(userIndex, userDataDir, proxy, userCredentials) {
-    const extensionPath = path.resolve('extension');
+    const extensionPath1 = path.resolve('extension');
+    const extensionPath2 = path.resolve('canvas');
+
+    const extensionPaths = [extensionPath1, extensionPath2].join(',');
+
     const pemPath = path.resolve('1.0.14_0.pem');
     const proxyUrl = `http://${proxy.ip}:${proxy.port}`;
     // 动态调试端口，根据 userIndex 生成不同的端口号
@@ -64,8 +68,8 @@ async function launch(userIndex, userDataDir, proxy, userCredentials) {
         userDataDir: userDataDir,
         args: [
             `--no-sandbox`,
-            `--disable-extensions-except=${extensionPath}`,
-            `--load-extension=${extensionPath}`,
+            `--disable-extensions-except=${extensionPaths}`,
+            `--load-extension=${extensionPaths}`,
             `--ignore-certificate-errors=${pemPath}`,
             `--proxy-server=${proxyUrl}`,
             `--remote-debugging-port=${debuggingPort}`,  // 根据 userIndex 设置的调试端口

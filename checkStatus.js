@@ -31,6 +31,7 @@ async function monitorExtension(port) {
             if (url.includes('api.gradient.network/api/sentrynode/get/')) {
                 try {
                     const textResponse = await response.text();
+                    console.log(textResponse)
                     const responseData = JSON.parse(textResponse);
                     if (!responseData || !responseData.data) return;
 
