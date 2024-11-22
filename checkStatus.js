@@ -31,14 +31,14 @@ async function monitorExtension(port) {
             if (url.includes('api.gradient.network/api/sentrynode/get/')) {
                 try {
                     const textResponse = await response.text();
-                    console.log(textResponse)
+                    //console.log(textResponse)
                     const responseData = JSON.parse(textResponse);
                     if (!responseData || !responseData.data) return;
 
                     const { active, ip } = responseData.data;
-                    console.log('\n状态检查结果:');
-                    console.log(`IP地址: ${ip}`);
-                    console.log(`活动状态: ${active ? '正常' : '失败'}`);
+                    //console.log('\n状态检查结果:');
+                    //console.log(`IP地址: ${ip}`);
+                    console.log(`[${new Date().toISOString()}]`, port, `活动状态: ${active ? '正常' : '失败'}`, ip);
                     
                     if (!active) {
                         console.log('\n警告: 节点状态为非活动状态!');
@@ -96,7 +96,7 @@ async function main() {
     const success = await monitorExtension(port);
     
     if (!success) {
-        console.log(`Failed to connect on port ${port}.`);
+        //console.log(`Failed to connect on port ${port}.`);
     }
 
     process.exit(0);
