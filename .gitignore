@@ -5,3 +5,4 @@ credentials.txt
 iplist
 proxies.txt
 chrome
+.env
