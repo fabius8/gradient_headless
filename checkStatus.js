@@ -96,7 +96,7 @@ async function main() {
     const success = await monitorExtension(port);
     
     if (!success) {
-        //console.log(`Failed to connect on port ${port}.`);
+        console.log(`Failed to connect on port ${port}.`);
     }
 
     process.exit(0);
