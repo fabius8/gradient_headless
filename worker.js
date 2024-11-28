@@ -71,7 +71,7 @@ async function launch(userIndex, userDataDir, proxy, userCredentials) {
 
     const browser = await puppeteer.launch({
         ...executablePath && { executablePath },
-        headless: true,
+        headless: false,
         ignoreHTTPSErrors: true,
         userDataDir: userDataDir,
         args: [

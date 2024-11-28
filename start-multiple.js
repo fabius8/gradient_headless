@@ -6,7 +6,7 @@ async function sleep(ms) {
 
 // 从命令行获取参数
 const START_USER = parseInt(process.argv[2] || 1);
-const END_USER = parseInt(process.argv[3] || 100);
+const END_USER = parseInt(process.argv[3] || 2);
 
 console.log(`准备启动用户 ${START_USER} 到 ${END_USER}`);
 
