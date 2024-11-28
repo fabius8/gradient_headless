@@ -1,12 +1,16 @@
 const pm2 = require('pm2');
 
+async function sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
+
 // 从命令行获取参数
 const START_USER = parseInt(process.argv[2] || 1);
 const END_USER = parseInt(process.argv[3] || 100);
 
 console.log(`准备启动用户 ${START_USER} 到 ${END_USER}`);
 
-pm2.connect(function(err) {
+pm2.connect(async function(err) {
     if (err) {
         console.error(err);
         process.exit(2);
@@ -28,5 +32,6 @@ pm2.connect(function(err) {
                 console.log(`User ${userNumber} 启动成功`);
             }
         });
+        await sleep(5000);  // 等待5秒
     }
 });

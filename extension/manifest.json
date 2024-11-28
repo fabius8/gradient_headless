@@ -7,6 +7,7 @@
       "service_worker": "background.bundle.js"
    },
    "description": "Get a sentry node and join the future of ubiquitous compute.",
+   "differential_fingerprint": "1.c79528d1b8b58e232a2e336ab6fd0d2cb47a1f85fbec6656dd52d1e3ba447462",
    "externally_connectable": {
       "matches": [ "https://app.gradient.network/*" ]
    },
@@ -20,5 +21,5 @@
    "name": "Gradient Sentry Node",
    "permissions": [ "storage", "offscreen" ],
    "update_url": "https://clients2.google.com/service/update2/crx",
-   "version": "1.0.14"
+   "version": "1.0.16"
 }

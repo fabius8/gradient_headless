@@ -71,7 +71,7 @@ async function launch(userIndex, userDataDir, proxy, userCredentials) {
 
     const browser = await puppeteer.launch({
         ...executablePath && { executablePath },
-        headless: true,
+        headless: false,
         ignoreHTTPSErrors: true,
         userDataDir: userDataDir,
         args: [
@@ -87,6 +87,7 @@ async function launch(userIndex, userDataDir, proxy, userCredentials) {
             '--no-first-run',
             '--no-zygote',
             `--js-flags=--max-old-space-size=512`, // 限制JavaScript堆内存
+
         ],
     });
     log(userIndex, `Browser launched successfully with user data directory: ${userDataDir}`);
