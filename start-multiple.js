@@ -32,6 +32,6 @@ pm2.connect(async function(err) {
                 console.log(`User ${userNumber} 启动成功`);
             }
         });
-        await sleep(5000);  // 等待5秒
+        await sleep(10000);  // 等待5秒
     }
 });
