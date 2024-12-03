@@ -50,6 +50,47 @@ function loadCredentials(filePath) {
     return credentials;
 }
 
+function getRandomFingerprint() {
+    const languages = [
+        // 英语变体
+        'en-US', 'en-GB', 'en-CA', 'en-AU', 'en-NZ', 'en-IE', 'en-ZA', 'en-IN',
+        // 欧洲语言
+        'fr-FR', 'fr-CA', 'fr-BE', 'fr-CH',
+        'de-DE', 'de-AT', 'de-CH',
+        'es-ES', 'es-MX', 'es-AR', 'es-CO', 'es-CL',
+        'it-IT', 'it-CH',
+        'pt-PT', 'pt-BR',
+        'nl-NL', 'nl-BE',
+        'pl-PL', 'ru-RU', 'uk-UA',
+        'sv-SE', 'no-NO', 'da-DK', 'fi-FI',
+        // 亚洲语言
+        'zh-CN', 'zh-TW', 'zh-HK',
+        'ja-JP', 'ko-KR',
+        'hi-IN', 'bn-IN', 'ta-IN',
+        'th-TH', 'vi-VN', 'id-ID', 'ms-MY',
+        // 其他地区
+        'ar-SA', 'ar-AE', 'ar-EG',
+        'tr-TR', 'he-IL', 'fa-IR'
+    ];
+    const colorProfiles = ['srgb', 'display-p3', 'color-gamut-p3'];
+    const gpuVendors = ['intel', 'amd', 'nvidia'];
+
+    // 生成随机缩放因子
+    const randomScale = (Math.floor(Math.random() * 41) * 0.05 + 0.5).toFixed(2);
+    
+    // 生成随机分辨率
+    const randomWidth = Math.floor(Math.random() * 40) * 40 + 800;  // 800-2360
+    const randomHeight = Math.floor(Math.random() * 30) * 30 + 600; // 600-1470
+
+    return [
+        `--accept-lang=${languages[Math.floor(Math.random() * languages.length)]}`,
+        `--force-color-profile=${colorProfiles[Math.floor(Math.random() * colorProfiles.length)]}`,
+        `--force-device-scale-factor=${randomScale}`,
+        `--window-size=${randomWidth},${randomHeight}`,
+        `--gpu-vendor=${gpuVendors[Math.floor(Math.random() * gpuVendors.length)]}`,
+    ];
+}
+
 async function launch(userIndex, userDataDir, proxy, userCredentials) {
     const extensionPath1 = path.resolve('extension');
     const extensionPath2 = path.resolve('canvas');
@@ -69,9 +110,11 @@ async function launch(userIndex, userDataDir, proxy, userCredentials) {
     }
     console.log('Using Chrome path:', executablePath || 'Default Chromium from puppeteer');
 
+    // 获取随机指纹参数
+    const randomFingerprint = getRandomFingerprint();
     const browser = await puppeteer.launch({
         ...executablePath && { executablePath },
-        headless: true,
+        headless: false,
         ignoreHTTPSErrors: true,
         userDataDir: userDataDir,
         args: [
@@ -88,7 +131,23 @@ async function launch(userIndex, userDataDir, proxy, userCredentials) {
             '--no-zygote',
             `--js-flags=--max-old-space-size=512`, // 限制JavaScript堆内存
 
-        ],
+            // 随机指纹参数
+            ...randomFingerprint,
+            // 固定的反指纹参数
+            //'--disable-gpu-driver-bug-workarounds',
+            //'--disable-webgl2',
+            //'--disable-reading-from-canvas',
+            //'--disable-audio-output',
+            
+            // 随机化 WebGL 参数
+            //Math.random() > 0.5 ? '--disable-webgl' : '--use-gl=desktop',
+            Math.random() > 0.5 ? '--use-angle=d3d11' : '--use-angle=d3d9',
+            
+            // 随机化其他功能
+            Math.random() > 0.5 ? '--disable-accelerated-2d-canvas' : '',
+            Math.random() > 0.5 ? '--disable-canvas-aa' : '',
+            Math.random() > 0.5 ? '--disable-2d-canvas-clip-aa' : '',
+        ].filter(Boolean), // 过滤掉空字符串
     });
     log(userIndex, `Browser launched successfully with user data directory: ${userDataDir}`);
 
