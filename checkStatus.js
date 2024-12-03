@@ -28,7 +28,8 @@ async function monitorExtension(port) {
 
         page.on('response', async response => {
             const url = response.url();
-            if (url.includes('api.gradient.network/api/sentrynode/get/')) {
+            const request = response.request();
+            if (url.includes('api.gradient.network/api/sentrynode/get/') && request.method() === 'GET') {
                 try {
                     const textResponse = await response.text();
                     //console.log(textResponse)
