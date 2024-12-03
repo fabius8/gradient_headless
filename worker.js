@@ -114,7 +114,7 @@ async function launch(userIndex, userDataDir, proxy, userCredentials) {
     const randomFingerprint = getRandomFingerprint();
     const browser = await puppeteer.launch({
         ...executablePath && { executablePath },
-        headless: false,
+        headless: true,
         ignoreHTTPSErrors: true,
         userDataDir: userDataDir,
         args: [
