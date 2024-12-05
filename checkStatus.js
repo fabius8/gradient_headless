@@ -36,10 +36,10 @@ async function monitorExtension(port) {
                     const responseData = JSON.parse(textResponse);
                     if (!responseData || !responseData.data) return;
 
-                    const { active, ip, today } = responseData.data;
+                    const { active, ip, today, point } = responseData.data;
                     //console.log('\n状态检查结果:');
                     //console.log(`IP地址: ${ip}`);
-                    console.log(`[${new Date().toISOString()}]`, port, `活动状态: ${active ? '正常' : '失败'}`, ip, "今日分数: ",today/100000);
+                    console.log(`[${new Date().toISOString()}]`, port, `活动状态: ${active ? '正常' : '失败'}`, ip, "今日分数:",today/100000, "总分数:", point/100000);
                     
                     if (!active) {
                         console.log('\n警告: 节点状态为非活动状态!');
